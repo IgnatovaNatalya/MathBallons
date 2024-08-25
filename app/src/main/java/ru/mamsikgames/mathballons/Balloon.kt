@@ -4,18 +4,16 @@ import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Path
-import android.graphics.drawable.AnimationDrawable
-import android.view.Gravity
+import android.os.Handler
+import android.os.Looper
 import android.view.View
 import android.view.animation.LinearInterpolator
 import android.widget.Button
 import android.widget.FrameLayout
-import android.widget.TextView
+import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.bumptech.glide.Glide
 import ru.mamsikgames.mathballons.R
-import java.util.concurrent.Executors
-import kotlin.concurrent.thread
-
 
 class Balloon(_con: Context, _lay: FrameLayout, _posX: Float, _gameS:GameStrategy, _gameSounds: GameSounds, _gameAnimations:BalloonAnimations) : ConstraintLayout(_con) {
 
@@ -30,7 +28,7 @@ class Balloon(_con: Context, _lay: FrameLayout, _posX: Float, _gameS:GameStrateg
         balloonColor = _clr
     }
     val con:Context=_con
-    var balloonNum:Int
+    var balloonNum: Int
     var balloonBtn: Button
 
     private val gameS=_gameS
@@ -40,7 +38,8 @@ class Balloon(_con: Context, _lay: FrameLayout, _posX: Float, _gameS:GameStrateg
     private var initX = _posX
     private var initY= 1800F-300
 
-    private var balloonBg: TextView
+    //private var balloonBg: TextView
+    private var balloonImage: ImageView
 
     private var balloonColors = arrayOf(
         R.drawable.red_00,
@@ -51,6 +50,17 @@ class Balloon(_con: Context, _lay: FrameLayout, _posX: Float, _gameS:GameStrateg
         R.drawable.blue_00,
         R.drawable.violet_00,
         R.drawable.pink_00
+    )
+
+    private var balloonAnimations = arrayOf(
+        R.drawable.animation_burst_blue,
+        R.drawable.animation_burst_blue,
+        R.drawable.animation_burst_blue,
+        R.drawable.animation_burst_blue,
+        R.drawable.animation_burst_blue,
+        R.drawable.animation_burst_blue,
+        R.drawable.animation_burst_blue,
+        R.drawable.animation_burst_blue,
     )
 
     private var balloonNums = arrayOf(
@@ -78,24 +88,22 @@ class Balloon(_con: Context, _lay: FrameLayout, _posX: Float, _gameS:GameStrateg
         y = initY
         balloonNum = gameS.getRandom()
 
-        balloonBg = TextView(_con)
-        addView(balloonBg)
+        balloonImage = ImageView(_con)
+        addView(balloonImage)
 
-        balloonBg.setBackgroundResource(balloonColors[balloonColor])
+        balloonImage.setBackgroundResource(balloonColors[balloonColor])
 
-        balloonBg.gravity = Gravity.CENTER
+        //balloonImage.gravity = Gravity.CENTER
 
-        //balloonBg.text = balloonNum.toString()
-
-        balloonBtn = Button(_con)
+        balloonBtn = Button(_con)///this?
         addView(balloonBtn)
 
         val buttonLayoutParams by lazy {
-            ConstraintLayout.LayoutParams(BUTTONWIDTH, BUTTONHEIGHT).apply {
-                bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
-                startToStart = ConstraintLayout.LayoutParams.PARENT_ID
-                topToTop = ConstraintLayout.LayoutParams.PARENT_ID
-                endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+            LayoutParams(BUTTONWIDTH, BUTTONHEIGHT).apply {
+                bottomToBottom = LayoutParams.PARENT_ID
+                startToStart = LayoutParams.PARENT_ID
+                topToTop = LayoutParams.PARENT_ID
+                endToEnd = LayoutParams.PARENT_ID
                 horizontalBias = 0.5F
             }
         }
@@ -111,7 +119,7 @@ class Balloon(_con: Context, _lay: FrameLayout, _posX: Float, _gameS:GameStrateg
         balloonNum=gameS.getRandom()
         balloonBtn.setBackgroundResource(balloonNums[balloonNum])
         balloonColor = (balloonColors.indices).random()
-        balloonBg.setBackgroundResource(balloonColors[balloonColor])
+        balloonImage.setBackgroundResource(balloonColors[balloonColor])
         x = initX
         y = initY
         balloonBtn.isClickable = true
@@ -159,7 +167,7 @@ class Balloon(_con: Context, _lay: FrameLayout, _posX: Float, _gameS:GameStrateg
             start()
         }
 
-        animator.setInterpolator(LinearInterpolator())
+        animator.interpolator = LinearInterpolator()
 
         animator.addListener(object : Animator.AnimatorListener {
             override fun onAnimationStart(animator: Animator) {}
@@ -175,32 +183,34 @@ class Balloon(_con: Context, _lay: FrameLayout, _posX: Float, _gameS:GameStrateg
     fun burstBalloon() {
         //взрывается либо пукает
 
-        val res= gameS.iNum==balloonNum
+        val res= gameS.iNum == balloonNum
 
         balloonBtn.setBackgroundResource(0)
         balloonBtn.isClickable = false
 
-        if (res) mySounds.playSoundBurst()
-        else mySounds.playSoundPuk()
+        if (res)
+            mySounds.playSoundBurst()
+        else
+            mySounds.playSoundPuk()
 
-    //    thread {
-            val burstAnimation = gameAnimations.burstAnimation(balloonColor)
-            balloonBg.background = burstAnimation
-            burstAnimation.setVisible(true, true)
-            burstAnimation.start()
-    //    }
+        //val burstAnimation = gameAnimations.burstAnimation(balloonColor)
+        //balloonImage.background = burstAnimation
+        //burstAnimation.setVisible(true, true)
+        //burstAnimation.start()
 
-        //if (res) balloonBg.setBackgroundResource(balloonAnimations[balloonColor])
-        //else balloonBg.setBackgroundResource(R.drawable.balloon_red_puk)
+        //Glide.with(this).load(balloonAnimations[balloonColor]).into(balloonImage)
 
-//        val burstAnimation: AnimationDrawable = balloonBg.background as AnimationDrawable
-//        burstAnimation.start()
+        //val handler = Handler(Looper.getMainLooper())
+        //handler.postDelayed({
+        //    Glide.with(this).load(R.drawable.frame_32).into(balloonImage)
+        //}, 640)
+
     }
 
     fun burstMega() {
         //взрывается большим взрывом
 
-        balloonBg.text = ""
+        //balloonImage.text = ""
         balloonBtn.isClickable = false
 
         mySounds.playSoundBurst()

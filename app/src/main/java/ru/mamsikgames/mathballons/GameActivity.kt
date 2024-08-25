@@ -3,17 +3,15 @@ package ru.mamsikgames.mathballoons
 import android.animation.ObjectAnimator
 import android.animation.Animator
 import android.animation.AnimatorSet
-import android.content.Context
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.View
 import android.widget.*
-import android.os.Message
 import android.widget.TextView
-import androidx.core.view.isVisible
+import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import ru.mamsikgames.mathballons.BalloonAnimated
 import ru.mamsikgames.mathballons.R
 
 const val ROUNDTIMES = 119      //время раунда в секундах
@@ -28,59 +26,54 @@ const val BUTTONWIDTH = 250     //ширина активной области �
 const val BUTTONHEIGHT = 300    //высота активной области шарика
 
 
-private var balloonsList = mutableListOf<Balloon>()
+//private var balloonsList = mutableListOf<Balloon>()
+private var balloonsList = mutableListOf<BalloonAnimated>()
 
-private var timerBackgrounds = arrayOf(
-    R.drawable.green_bar1,
-    R.drawable.green_bar2,
-    R.drawable.green_bar3,
-    R.drawable.green_bar4,
-    R.drawable.green_bar5,
-    R.drawable.green_bar6,
-    R.drawable.green_bar7,
-    R.drawable.green_bar8,
-    R.drawable.green_bar9,
-    R.drawable.green_bar10,
-    R.drawable.green_bar11,
-    R.drawable.green_bar12
-)
+//private var timerBackgrounds = arrayOf(
+//    R.drawable.green_bar1,
+//    R.drawable.green_bar2,
+//    R.drawable.green_bar3,
+//    R.drawable.green_bar4,
+//    R.drawable.green_bar5,
+//    R.drawable.green_bar6,
+//    R.drawable.green_bar7,
+//    R.drawable.green_bar8,
+//    R.drawable.green_bar9,
+//    R.drawable.green_bar10,
+//    R.drawable.green_bar11,
+//    R.drawable.green_bar12
+//)
 
-private var xxx = mutableListOf<Int>() //положения шаров по оси X
+private var pointsX = mutableListOf<Int>() //положения шаров по оси X
 
 private var correctCounter = 0  //счетчик правильных ответов
 private var wrongCounter = 0    //неправильных
-private var iLop = 0              //сколько лопнуто за одно задание
+private var iLop = 0            //сколько лопнуто за одно задание
 
-private lateinit var ll_main: FrameLayout
-
+private lateinit var ll_game: ConstraintLayout
 private lateinit var gameStrategy:GameStrategy
 private lateinit var gameSounds: GameSounds
-private lateinit var gameAnimations: BalloonAnimations
-
+//private lateinit var gameAnimations: BalloonAnimations
 
 class GameActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_game)
-        supportActionBar?.hide() ///
 
-        ll_main = findViewById(R.id.ll_main_layout)
-        val con: Context = this
-        gameStrategy= GameStrategy()
-        gameSounds = GameSounds(con)
-        gameAnimations = BalloonAnimations(con)
+        ll_game = findViewById(R.id.ll_game)
+        //val con: Context = this
+        //gameStrategy= GameStrategy()
+        gameSounds = GameSounds(this)
+        //gameAnimations = BalloonAnimations(con)
 
-
-        val handlerPlay = Handler(Looper.getMainLooper())
-
-        handlerPlay.postDelayed({
             //hideLoad()
             prepareXs()
-            clock()
-            makeBalloons()
-            test()
+            //clock()
+            //makeBalloons()
+            makeOneBalloon()
+            //test()
             //play()
-        }, 3000)
+
     }
 
 
@@ -106,7 +99,44 @@ class GameActivity : AppCompatActivity() {
         val offset = offsetscreen - (BALLONSIZE - BUTTONWIDTH)/2
 
         for (i in 0..NCOLS-1) {
-            xxx.add( i*dx + offset  )
+            pointsX.add( i*dx + offset  )
+        }
+    }
+
+    private fun makeBalloons() { //генерируем объем шаров достаточный для заполнения экрана и выпускаем их с заданным интервалом
+
+        val handler = Handler(Looper.getMainLooper())
+
+        for (i in (1..NROWS)) {
+            val myListPosX = mutableListOf<Int>()
+            myListPosX.addAll(pointsX)
+            myListPosX.shuffle()
+
+            for (j in pointsX.indices) {
+                handler.postDelayed({
+                    //val ball = newBalloon(myListPosX[j].toFloat())
+                    val ball = BalloonAnimated( this,7)
+                    ball.x = pointsX[j].toFloat()
+                    ball.y = 1700F//1800F-300F
+                    ball.setOnClickListener { pressBalloon(ball) }
+                    balloonsList.add(ball)
+                    ll_game.addView(ball)
+                    ball.moveBalloon()
+                }, INTERVALMS.toLong()) //( (i - 1) * INTERVALMS * pointsX.size + j * INTERVALMS).toLong())
+            }
+        }
+    }
+    private fun makeOneBalloon() {
+
+        for ( i:Int in (1..3)) {
+
+            val ball = BalloonAnimated(this, i)
+            ball.x = 60F+ (i*120).toFloat()
+            ball.y = 1700F
+            ball.setOnClickListener { pressBalloon(ball) }
+            balloonsList.add(ball)
+            ll_game.addView(ball)
+            ball.moveBalloon()
         }
     }
 
@@ -156,11 +186,11 @@ class GameActivity : AppCompatActivity() {
     }
 
 
-    private fun clock() { //обновляем статусбар с оставшимся временем каждую секунду
-
-        val timerBg = findViewById<TextView>(R.id.timer_text)
-        var i=0
-        val handlerTimer = Handler(Looper.getMainLooper())
+//    private fun clock() { //обновляем статусбар с оставшимся временем каждую секунду
+//
+//        val timerBg = findViewById<TextView>(R.id.timer_text)
+//        var i=0
+//        val handlerTimer = Handler(Looper.getMainLooper())
 
         /*val restTimeS=roundTimeS-roundTimeM*60
         for (m in 0..roundTimeM-1) {
@@ -177,45 +207,29 @@ class GameActivity : AppCompatActivity() {
             }
         }*/
 
-        for (s in 0..ROUNDTIMES) {
-            handlerTimer.postDelayed({
+//        for (s in 0..ROUNDTIMES) {
+//            handlerTimer.postDelayed({
+//
+//                setTimer(ROUNDTIMES-s)
+//
+//                if (s%10 == 0) {
+//                    timerBg.setBackgroundResource(timerBackgrounds[i])
+//                    i++
+//                }
+//            },(s*1000).toLong())
+//        }
+//    }
 
-                setTimer(ROUNDTIMES-s)
 
-                if (s%10 == 0) {
-                    timerBg.setBackgroundResource(timerBackgrounds[i])
-                    i++
-                }
-            },(s*1000).toLong())
-        }
-    }
 
-    private fun makeBalloons() { //генерируем объем шаров достаточный для заполнения экрана и выпускаем их с заданным интервалом
 
-        val handler = Handler(Looper.getMainLooper())
-
-        for (i in (1..NROWS)) {
-            val myListPosX = mutableListOf<Int>()
-            myListPosX.addAll(xxx)
-            myListPosX.shuffle()
-
-            for (j in xxx.indices) {
-                handler.postDelayed({
-                    val ball = newBalloon(myListPosX[j].toFloat())
-                    balloonsList.add(ball)
-                    ball.moveBalloon()
-                }, ( (i - 1) * INTERVALMS * xxx.size + j * INTERVALMS).toLong())
-            }
-        }
-    }
-
-    private fun newBalloon(posX: Float): Balloon {
-
-        val myBalloon = Balloon(this, ll_main, posX, gameStrategy, gameSounds, gameAnimations)
-        myBalloon.balloonBtn.setOnClickListener { pressBalloon(myBalloon) }
-
-        return myBalloon
-    }
+//    private fun newBalloon(posX: Float): Balloon {
+//
+//        val myBalloon = Balloon(this, ll_main, posX, gameStrategy, gameSounds, gameAnimations)
+//        myBalloon.balloonBtn.setOnClickListener { pressBalloon(myBalloon) }
+//
+//        return myBalloon
+//    }
 
     private fun winScreen(mode:Boolean) {  //отображение или скрытие экрана окончания раунда
 
@@ -247,45 +261,45 @@ class GameActivity : AppCompatActivity() {
 
     }
 
-    private fun burstNum(defNum: Int) {
-        val handler = Handler(Looper.getMainLooper())
+//    private fun burstNum(defNum: Int) {
+//        val handler = Handler(Looper.getMainLooper())
+//
+//        var i = 0
+//        for (ball in balloonsList) {
+//            if (ball.balloonNum==defNum) {
+//                handler.postDelayed({
+//                    ball.burstBalloon()///
+//                }, (i * 100).toLong())
+//                i++
+//            }
+//        }
+//    }
 
-        var i = 0
-        for (ball in balloonsList) {
-            if (ball.balloonNum==defNum) {
-                handler.postDelayed({
-                    ball.burstBalloon()///
-                }, (i * 100).toLong())
-                i++
-            }
-        }
-    }
+//    private fun burstAndPlay() {
+//        val handler = Handler(Looper.getMainLooper())
+//
+//        var i = 0
+//        for (ball in balloonsList) {
+//            if (i>=3) ball.removeBalloon()
+//            handler.postDelayed({
+//                if ( i<3) ball.burstMega()///
+//
+//            }, (i * 100).toLong())
+//            i++
+//        }
+//
+//        handler.postDelayed({
+//            gameStrategy.newRound()
+//            clock()
+//            play()
+//        },(i*100).toLong())
+//    }
 
-    private fun burstAndPlay() {
-        val handler = Handler(Looper.getMainLooper())
+    //private fun pressBalloon(ball: Balloon) {
+    private fun pressBalloon(ball: BalloonAnimated) {
+        val res = ball.num == gameStrategy.iNum
 
-        var i = 0
-        for (ball in balloonsList) {
-            if (i>=3) ball.removeBalloon()
-            handler.postDelayed({
-                if ( i<3) ball.burstMega()///
-
-            }, (i * 100).toLong())
-            i++
-        }
-
-        handler.postDelayed({
-            gameStrategy.newRound()
-            clock()
-            play()
-        },(i*100).toLong())
-    }
-
-    private fun pressBalloon(ball: Balloon) {
-
-        val res = ball.balloonNum == gameStrategy.iNum
-
-        ball.burstBalloon()
+        ball.burst()
 
         if (res) {
             correctCounter++
