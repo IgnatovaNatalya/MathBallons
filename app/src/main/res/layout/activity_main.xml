@@ -37,7 +37,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/name_22" />
 
-    <!--ImageView
+    <ImageView
         android:id="@+id/yellow_launcher"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -45,6 +45,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/yellow_00" /-->
+        app:srcCompat="@drawable/yellow_00" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
