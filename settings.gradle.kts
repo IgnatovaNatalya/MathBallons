@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "MathBallons"
+rootProject.name = "MathBalloons"
 include(":app")
  

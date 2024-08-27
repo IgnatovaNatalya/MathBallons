@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "ru.mamsikgames.mathballons"
+    namespace = "ru.mamsikgames.mathballoons"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "ru.mamsikgames.mathballons"
+        applicationId = "ru.mamsikgames.mathballoons"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -36,7 +36,11 @@ android {
 }
 
 dependencies {
-    implementation("com.github.bumptech.glide:glide:4.13.0")//
+    implementation(libs.glide)//
+    //implementation("com.github.bumptech.glide:glide:4.13.0")//
+    annotationProcessor (libs.compiler)
+    //annotationProcessor ("com.github.bumptech.glide:compiler:4.13.0")
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
