@@ -1,4 +1,4 @@
-package ru.mamsikgames.mathballons
+package ru.mamsikgames.mathballoons
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -19,6 +19,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
         // Context of the app under test.
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("ru.mamsikgames.mathballons", appContext.packageName)
+        assertEquals("ru.mamsikgames.mathballoons", appContext.packageName)
     }
 }

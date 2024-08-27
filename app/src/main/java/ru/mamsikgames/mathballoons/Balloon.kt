@@ -4,16 +4,13 @@ import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Path
-import android.os.Handler
-import android.os.Looper
 import android.view.View
 import android.view.animation.LinearInterpolator
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.bumptech.glide.Glide
-import ru.mamsikgames.mathballons.R
+import ru.mamsikgames.mathballoons.R
 
 class Balloon(_con: Context, _lay: FrameLayout, _posX: Float, _gameS:GameStrategy, _gameSounds: GameSounds, _gameAnimations:BalloonAnimations) : ConstraintLayout(_con) {
 

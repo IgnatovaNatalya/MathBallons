@@ -11,8 +11,7 @@ import android.widget.*
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import ru.mamsikgames.mathballons.BalloonAnimated
-import ru.mamsikgames.mathballons.R
+import ru.mamsikgames.mathballoons.R
 
 const val ROUNDTIMES = 119      //время раунда в секундах
 const val TASKTIMES = 15        //время одного задания в секундах
@@ -67,10 +66,10 @@ class GameActivity : AppCompatActivity() {
         //gameAnimations = BalloonAnimations(con)
 
             //hideLoad()
-            prepareXs()
+        prepareXs()
             //clock()
             //makeBalloons()
-            makeOneBalloon()
+        makeOneBalloon()
             //test()
             //play()
 

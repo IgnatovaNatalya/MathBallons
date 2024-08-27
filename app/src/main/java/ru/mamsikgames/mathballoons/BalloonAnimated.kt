@@ -1,4 +1,4 @@
-package ru.mamsikgames.mathballons
+package ru.mamsikgames.mathballoons
 
 import android.animation.Animator
 import android.animation.ObjectAnimator
@@ -13,6 +13,7 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import android.view.View
 import android.view.animation.LinearInterpolator
+
 
 class BalloonAnimated(context: Context?, val num: Int) : View(context) {
 

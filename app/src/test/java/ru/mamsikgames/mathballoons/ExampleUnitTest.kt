@@ -1,4 +1,4 @@
-package ru.mamsikgames.mathballons
+package ru.mamsikgames.mathballoons
 
 import org.junit.Test
 

@@ -3,10 +3,7 @@ package ru.mamsikgames.mathballoons
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.widget.ProgressBar
-import androidx.constraintlayout.widget.ConstraintLayout
-import ru.mamsikgames.mathballons.R
+import ru.mamsikgames.mathballoons.R
 
 lateinit var musicIntent: Intent
 
