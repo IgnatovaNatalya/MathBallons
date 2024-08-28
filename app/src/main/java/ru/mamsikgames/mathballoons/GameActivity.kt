@@ -1,17 +1,14 @@
 package ru.mamsikgames.mathballoons
 
-import android.animation.ObjectAnimator
 import android.animation.Animator
 import android.animation.AnimatorSet
-
+import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.widget.*
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import ru.mamsikgames.mathballoons.R
 
 const val ROUNDTIMES = 119      //время раунда в секундах
 const val TASKTIMES = 15        //время одного задания в секундах
@@ -26,7 +23,7 @@ const val BUTTONHEIGHT = 300    //высота активной области �
 
 
 //private var balloonsList = mutableListOf<Balloon>()
-private var balloonsList = mutableListOf<BalloonAnimated>()
+private var balloonsList = mutableListOf<BalloonAnimGif>()
 
 //private var timerBackgrounds = arrayOf(
 //    R.drawable.green_bar1,
@@ -52,7 +49,7 @@ private var iLop = 0            //сколько лопнуто за одно з
 private lateinit var ll_game: ConstraintLayout
 private lateinit var gameStrategy:GameStrategy
 private lateinit var gameSounds: GameSounds
-//private lateinit var gameAnimations: BalloonAnimations
+private lateinit var gameAnimations: BalloonAnimations
 
 class GameActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,15 +58,16 @@ class GameActivity : AppCompatActivity() {
 
         ll_game = findViewById(R.id.ll_game)
         //val con: Context = this
-        //gameStrategy= GameStrategy()
+        gameStrategy= GameStrategy()
         gameSounds = GameSounds(this)
-        //gameAnimations = BalloonAnimations(con)
+        gameAnimations = BalloonAnimations(this)
 
             //hideLoad()
         prepareXs()
             //clock()
             //makeBalloons()
-        makeOneBalloon()
+        //makeOneBalloon()
+        makeGifBalloons()
             //test()
             //play()
 
@@ -97,12 +95,12 @@ class GameActivity : AppCompatActivity() {
         val dx =( width - offsetscreen*2 - BUTTONWIDTH)/(NCOLS-1)
         val offset = offsetscreen - (BALLONSIZE - BUTTONWIDTH)/2
 
-        for (i in 0..NCOLS-1) {
+        for (i in 0..<NCOLS) {
             pointsX.add( i*dx + offset  )
         }
     }
 
-    private fun makeBalloons() { //генерируем объем шаров достаточный для заполнения экрана и выпускаем их с заданным интервалом
+    private fun makeGifBalloons() {
 
         val handler = Handler(Looper.getMainLooper())
 
@@ -113,31 +111,66 @@ class GameActivity : AppCompatActivity() {
 
             for (j in pointsX.indices) {
                 handler.postDelayed({
-                    //val ball = newBalloon(myListPosX[j].toFloat())
-                    val ball = BalloonAnimated( this,7)
+                    val ball = newBalloon(myListPosX[j].toFloat())
                     ball.x = pointsX[j].toFloat()
                     ball.y = 1700F//1800F-300F
                     ball.setOnClickListener { pressBalloon(ball) }
                     balloonsList.add(ball)
-                    ll_game.addView(ball)
+
                     ball.moveBalloon()
-                }, INTERVALMS.toLong()) //( (i - 1) * INTERVALMS * pointsX.size + j * INTERVALMS).toLong())
+                }, ((i - 1) * INTERVALMS * pointsX.size + j * INTERVALMS).toLong())
+
             }
         }
     }
-    private fun makeOneBalloon() {
 
-        for ( i:Int in (1..3)) {
+    private fun newBalloon(posX: Float): BalloonAnimGif {
 
-            val ball = BalloonAnimated(this, i)
-            ball.x = 60F+ (i*120).toFloat()
-            ball.y = 1700F
-            ball.setOnClickListener { pressBalloon(ball) }
-            balloonsList.add(ball)
-            ll_game.addView(ball)
-            ball.moveBalloon()
-        }
+        val myBalloon = BalloonAnimGif(this, ll_game, posX, gameStrategy, gameSounds)
+        myBalloon.balloonBtn.setOnClickListener { pressBalloon(myBalloon) }
+
+
+        return myBalloon
     }
+
+
+
+//    private fun makeBalloons() { //генерируем объем шаров достаточный для заполнения экрана и выпускаем их с заданным интервалом
+//
+//        val handler = Handler(Looper.getMainLooper())
+//
+//        for (i in (1..NROWS)) {
+//            val myListPosX = mutableListOf<Int>()
+//            myListPosX.addAll(pointsX)
+//            myListPosX.shuffle()
+//
+//            for (j in pointsX.indices) {
+//                handler.postDelayed({
+//                    //val ball = newBalloon(myListPosX[j].toFloat())
+//                    val ball = BalloonAnimated( this,7)
+//                    ball.x = pointsX[j].toFloat()
+//                    ball.y = 1700F//1800F-300F
+//                    ball.setOnClickListener { pressBalloon(ball) }
+//                    balloonsList.add(ball)
+//                    ll_game.addView(ball)
+//                    ball.moveBalloon()
+//                }, INTERVALMS.toLong()) //( (i - 1) * INTERVALMS * pointsX.size + j * INTERVALMS).toLong())
+//            }
+//        }
+//    }
+//    private fun makeOneBalloon() {
+//
+//        for ( i:Int in (1..3)) {
+//
+//            val ball = BalloonAnimated(this, i)
+//            ball.x = 60F+ (i*120).toFloat()
+//            ball.y = 1700F
+//            ball.setOnClickListener { pressBalloon(ball) }
+//            balloonsList.add(ball)
+//            ll_game.addView(ball)
+//            ball.moveBalloon()
+//        }
+//    }
 
     private fun test() {
 
@@ -222,13 +255,7 @@ class GameActivity : AppCompatActivity() {
 
 
 
-//    private fun newBalloon(posX: Float): Balloon {
-//
-//        val myBalloon = Balloon(this, ll_main, posX, gameStrategy, gameSounds, gameAnimations)
-//        myBalloon.balloonBtn.setOnClickListener { pressBalloon(myBalloon) }
-//
-//        return myBalloon
-//    }
+
 
     private fun winScreen(mode:Boolean) {  //отображение или скрытие экрана окончания раунда
 
@@ -295,24 +322,9 @@ class GameActivity : AppCompatActivity() {
 //    }
 
     //private fun pressBalloon(ball: Balloon) {
-    private fun pressBalloon(ball: BalloonAnimated) {
-        val res = ball.num == gameStrategy.iNum
-
-        ball.burst()
-
-        if (res) {
-            correctCounter++
-            iLop++
-
-            setCorrect(correctCounter)
-            setDop2(iLop)
-
-            gameSounds.playSoundCor()
-
-        } else {
-            wrongCounter++
-            setWrong(wrongCounter)
-        }
+    //private fun pressBalloon(ball: BalloonAnimated) {
+    private fun pressBalloon(ball: BalloonAnimGif) {
+        ball.burstBalloon()
     }
 
     private fun setCorrect(num: Int) {
