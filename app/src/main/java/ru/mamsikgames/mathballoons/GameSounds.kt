@@ -3,6 +3,7 @@ import android.content.Context
 import android.media.SoundPool
 import android.media.AudioAttributes
 import android.media.SoundPool.*
+import ru.mamsikgames.mathballoons.R
 
 
 class GameSounds(_con: Context) {

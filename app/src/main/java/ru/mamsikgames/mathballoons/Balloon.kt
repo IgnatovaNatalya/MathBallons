@@ -10,6 +10,7 @@ import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
+import ru.mamsikgames.mathballoons.R
 
 class Balloon(_con: Context, _lay: FrameLayout, _posX: Float, _gameS:GameStrategy, _gameSounds: GameSounds, _gameAnimations:BalloonAnimations) : ConstraintLayout(_con) {
 

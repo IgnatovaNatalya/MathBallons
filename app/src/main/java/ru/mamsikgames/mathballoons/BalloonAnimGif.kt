@@ -28,26 +28,6 @@ class BalloonAnimGif(
     _gameAnimations: BalloonAnimations
 ) : ConstraintLayout(_con) {
 
-    constructor(
-        _con: Context,
-        _lay: ConstraintLayout,
-        _posX: Float,
-        _gameS: GameStrategy,
-        _gameSounds: GameSounds,
-        _gameAnimations: BalloonAnimations,
-        _clr: Int
-    ) : this(
-        _con,
-        _lay,
-        _posX,
-        _gameS,
-        _gameSounds,
-        _gameAnimations
-    ) {
-        balloonColor = _clr
-    }
-
-    val con: Context = _con
     var balloonNum: Int
     var balloonBtn: Button
 
@@ -205,7 +185,7 @@ class BalloonAnimGif(
 
         val res = gameS.iNum == balloonNum
 
-        balloonBtn.setBackgroundResource(0)
+        //balloonBtn.setBackgroundResource(0)
         balloonBtn.isClickable = false
 
         if (res)
@@ -222,6 +202,7 @@ class BalloonAnimGif(
                     resource: GifDrawable,model: Any?,target: Target<GifDrawable>?,dataSource: DataSource?,
                     isFirstResource: Boolean
                 ): Boolean {
+                    println("animation ready")
                     resource.setLoopCount(1)
                     return false
                 }
@@ -234,10 +215,10 @@ class BalloonAnimGif(
             })
             .into(balloonImage)
 
-        val handler = Handler(Looper.getMainLooper())
-        handler.postDelayed({
-            Glide.with(this).load(R.drawable.frame_32).into(balloonImage)
-        }, 640)
+        //val handler = Handler(Looper.getMainLooper())
+        //handler.postDelayed({
+        //    Glide.with(this).load(R.drawable.frame_32).into(balloonImage)
+        //}, 640)
 
     }
 
