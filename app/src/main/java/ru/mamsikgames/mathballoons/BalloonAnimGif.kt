@@ -25,15 +25,15 @@ class BalloonAnimGif(
     _posX: Float,
     _gameS: GameStrategy,
     _gameSounds: GameSounds,
-    _gameAnimations: BalloonAnimations
+    //_gameAnimations: BalloonAnimations
 ) : ConstraintLayout(_con) {
 
-    var balloonNum: Int
+    private var balloonNum: Int
     var balloonBtn: Button
 
     private val gameS = _gameS
     private val mySounds: GameSounds = _gameSounds
-    private val gameAnimations = _gameAnimations
+    //private val gameAnimations = _gameAnimations
     private var balloonLayout = _lay
     private var initX = _posX
     private var initY = 1800F - 300
@@ -93,7 +93,7 @@ class BalloonAnimGif(
 
         balloonImage.setBackgroundResource(balloonColors[balloonColor])
 
-        balloonBtn = Button(_con)///this?
+        balloonBtn = Button(_con)
         addView(balloonBtn)
 
         val buttonLayoutParams by lazy {
@@ -185,7 +185,7 @@ class BalloonAnimGif(
 
         val res = gameS.iNum == balloonNum
 
-        //balloonBtn.setBackgroundResource(0)
+        balloonBtn.setBackgroundResource(0)
         balloonBtn.isClickable = false
 
         if (res)
@@ -196,13 +196,13 @@ class BalloonAnimGif(
 //        Glide.with(this).load(R.drawable.animation_burst_blue).into(balloonImage)
         Glide
             .with(this).asGif()
-            .load(R.drawable.animation_burst_blue)
+            //.load(R.drawable.animation_burst_blue)
+            .load(balloonGifAnimations[balloonColor])
             .listener(object : RequestListener<GifDrawable> {
                 override fun onResourceReady(
                     resource: GifDrawable,model: Any?,target: Target<GifDrawable>?,dataSource: DataSource?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    println("animation ready")
                     resource.setLoopCount(1)
                     return false
                 }
@@ -214,11 +214,6 @@ class BalloonAnimGif(
                 }
             })
             .into(balloonImage)
-
-        //val handler = Handler(Looper.getMainLooper())
-        //handler.postDelayed({
-        //    Glide.with(this).load(R.drawable.frame_32).into(balloonImage)
-        //}, 640)
 
     }
 
