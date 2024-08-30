@@ -12,21 +12,18 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 
-
 const val ROUNDTIMES = 119      //время раунда в секундах
 const val TASKTIMES = 15        //время одного задания в секундах
 const val QUANNUMBERS = 10      //количество загаданных шариков на задание
-const val INTERVALMS = 1000     //время между появлением шариков, миллисекунды
+const val INTERVALMS = 1000L     //время между появлением шариков, миллисекунды
 const val NROWS = 3             //количество рядов шариков на экране
-const val NCOLS = 3            //количество шариков в одном ряду на экране !=0
-const val DURATION = 25         //длительность кадра внимации взрыва, миллисекунды
+const val NCOLS = 4             //количество шариков в одном ряду на экране !=0
+const val DURATION = 30L         //длительность кадра внимации взрыва, миллисекунды
 const val BALLONSIZE = 1200     //размеры картинки шарика (и взрыва)
 const val BUTTONWIDTH = 250     //ширина активной области шарика
 const val BUTTONHEIGHT = 300    //высота активной области шарика
+const val FONTSIZE = 80.0f      //надпись на шарике
 
-
-//private var balloonsList = mutableListOf<Balloon>()
-//private var balloonsList = mutableListOf<BalloonAnimGif>()
 private var balloonsList = mutableListOf<BalloonAnimated>()
 
 //private var timerBackgrounds = arrayOf(
@@ -53,7 +50,6 @@ private var iLop = 0            //сколько лопнуто за одно з
 private lateinit var ll_game: ConstraintLayout
 private lateinit var gameStrategy: GameStrategy
 private lateinit var gameSounds: GameSounds
-private lateinit var gameAnimations: BalloonAnimations
 
 class GameActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,18 +60,14 @@ class GameActivity : AppCompatActivity() {
         //val con: Context = this
         gameStrategy = GameStrategy()
         gameSounds = GameSounds(this)
-        gameAnimations = BalloonAnimations(this)
+        //gameAnimations = BalloonAnimations(this)
 
         //hideLoad()
         prepareXs()
         //clock()
-        //makeBalloons()
-        //makeOneBalloon()
-        makeBalloonAnimated()
-        //makeGifBalloons()
+        makeBalloonsAnimated()
         //test()
         //play()
-
     }
 
 
@@ -89,7 +81,6 @@ class GameActivity : AppCompatActivity() {
          loadName.isVisible=false
          loadText.isVisible=false
          loadBar.isVisible=false
-
      }*/
 
     private fun prepareXs() {
@@ -102,6 +93,104 @@ class GameActivity : AppCompatActivity() {
 
         for (i in 0..<NCOLS) {
             pointsX.add(i * dx + offset)
+        }
+    }
+
+    private fun makeBalloonsAnimated() {
+
+        for (i in (1..NROWS)) {
+
+            val shuffledPosX = mutableListOf<Int>()
+            shuffledPosX.addAll(pointsX)
+            shuffledPosX.shuffle()
+
+            //for (j in (0..<NCOLS))
+            for (j in pointsX.indices) {
+                makeBalloon(shuffledPosX[j].toFloat(), 100F + i * 400F)
+            }
+        }
+    }
+
+    private fun remakeBalloon(posX:Float) {
+        makeBalloon(posX,1700F)
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    fun makeBalloon(posX: Float, posY: Float) {
+
+        val balloonAnimated = BalloonAnimated(this, gameStrategy.getRandom())//
+
+        balloonAnimated.x = posX
+        balloonAnimated.y = posY
+
+        balloonsList.add(balloonAnimated)
+        balloonAnimated.setLayoutParams(ConstraintLayout.LayoutParams(BALLONSIZE, BALLONSIZE))
+        ll_game.addView(balloonAnimated)
+        balloonAnimated.moveBalloon()
+        //balloonAnimated.setOnClickListener {  pressBalloon(balloonAnimated) }
+
+        balloonAnimated.setOnTouchListener { _, event ->
+            var isProcessed = false
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                if (!balloonAnimated.isBursting &&
+                    event.x > ((BALLONSIZE - BUTTONWIDTH) / 2) && event.x < ((BALLONSIZE + BUTTONWIDTH) / 2) &&
+                    event.y > ((BALLONSIZE - BUTTONHEIGHT) / 2) && event.y < ((BALLONSIZE + BUTTONHEIGHT) / 2)
+                ) {
+                    balloonAnimated.burstBalloon()
+                    val handlerRemove = Handler(Looper.getMainLooper())
+                    handlerRemove.postDelayed({
+                        ll_game.removeView(balloonAnimated)
+                        remakeBalloon(balloonAnimated.x)
+                    }, balloonAnimated.frameCount * DURATION)
+                    isProcessed = true
+                }
+            }
+            isProcessed
+        }
+    }
+
+    private fun test() {
+
+        val rounds = ROUNDTIMES / TASKTIMES - 1
+
+        val handlerSay = Handler(Looper.getMainLooper())
+
+        for (r in (0..rounds)) {           //обновляем задачу "Лопни все шарики..." в заданный интервал
+            handlerSay.postDelayed({
+                gameStrategy.newTask()
+                setDop(gameStrategy.iNum)
+                sayLopni()
+            }, (r * TASKTIMES * 1000).toLong())
+        }
+    }
+
+    private fun play() {
+
+        val rounds = ROUNDTIMES / TASKTIMES - 1
+
+        val handlerSay = Handler(Looper.getMainLooper())
+
+        for (r in (0..rounds)) {           //обновляем задачу "Лопни все шарики..." в заданный интервал
+            handlerSay.postDelayed({
+                gameStrategy.newTask()
+                setDop(gameStrategy.iNum)
+                sayLopni()
+            }, (r * TASKTIMES * 1000).toLong())
+        }
+
+        handlerSay.postDelayed({ //окончание раунда
+            winScreen(true)
+        }, ((rounds + 1) * TASKTIMES * 1000).toLong())
+
+    }
+
+    private fun sayLopni() {
+
+        iLop = 0
+        gameSounds.playSoundNum(gameStrategy.iNum)
+
+        if (!gameStrategy.first) {
+            gameSounds.playSoundNewtask()
         }
     }
 
@@ -162,100 +251,13 @@ class GameActivity : AppCompatActivity() {
 //            }
 //        }
 //    }
-    @SuppressLint("ClickableViewAccessibility")
-    private fun makeBalloonAnimated() {
 
-        val handler = Handler(Looper.getMainLooper())
-
-        for (i in (1..NROWS)) {
-            //val myListPosX = mutableListOf<Int>()
-            //myListPosX.addAll(pointsX)
-            // myListPosX.shuffle()
-
-            for (j in pointsX.indices) {
-                handler.postDelayed({
-
-                    val balloonAnimated = BalloonAnimated(this, j)//
-
-                    balloonAnimated.x = pointsX[j].toFloat()
-                    balloonAnimated.y = 1800F//1800F-300F
-
-                    balloonsList.add(balloonAnimated)
-                    balloonAnimated.setLayoutParams(ConstraintLayout.LayoutParams(1000, 1000));
-                    ll_game.addView(balloonAnimated)
-                    balloonAnimated.moveBalloon()
-
-                    //balloonAnimated.setOnClickListener {  pressBalloon(balloonAnimated) }
-
-                    balloonAnimated.setOnTouchListener { _, event ->
-                        var isProcessed = false
-                        if (event.action == MotionEvent.ACTION_DOWN) {
-                            if (!balloonAnimated.isBursting && event.x > 400F && event.x < 600F && event.y > 300F && event.y < 700F) {
-                                balloonAnimated.burstBalloon()
-                                val handler = Handler(Looper.getMainLooper())
-                                handler.postDelayed({
-                                    ll_game.removeView(balloonAnimated)
-                                }, balloonAnimated.frameCount * balloonAnimated.frameDuration)
-                                isProcessed = true
-                            }
-                        }
-                        isProcessed
-                    }
-                }, ((i - 1) * INTERVALMS * pointsX.size + j * INTERVALMS).toLong())
-            }
-        }
-    }
 
     //private fun pressBalloon(ball: Balloon) {
-    private fun pressBalloon(ball: BalloonAnimated) {
-        //private fun pressBalloon(ball: BalloonAnimGif) {
-        ball.burstBalloon()
-    }
-
-    private fun test() {
-
-        val rounds = ROUNDTIMES / TASKTIMES - 1
-
-        val handlerSay = Handler(Looper.getMainLooper())
-
-        for (r in (0..rounds)) {           //обновляем задачу "Лопни все шарики..." в заданный интервал
-            handlerSay.postDelayed({
-                gameStrategy.newTask()
-                setDop(gameStrategy.iNum)
-                sayLopni()
-            }, (r * TASKTIMES * 1000).toLong())
-        }
-    }
-
-    private fun play() {
-
-        val rounds = ROUNDTIMES / TASKTIMES - 1
-
-        val handlerSay = Handler(Looper.getMainLooper())
-
-        for (r in (0..rounds)) {           //обновляем задачу "Лопни все шарики..." в заданный интервал
-            handlerSay.postDelayed({
-                gameStrategy.newTask()
-                setDop(gameStrategy.iNum)
-                sayLopni()
-            }, (r * TASKTIMES * 1000).toLong())
-        }
-
-        handlerSay.postDelayed({ //окончание раунда
-            winScreen(true)
-        }, ((rounds + 1) * TASKTIMES * 1000).toLong())
-
-    }
-
-    private fun sayLopni() {
-
-        iLop = 0
-        gameSounds.playSoundNum(gameStrategy.iNum)
-
-        if (!gameStrategy.first) {
-            gameSounds.playSoundNewtask()
-        }
-    }
+    //private fun pressBalloon(ball: BalloonAnimated) {
+    //private fun pressBalloon(ball: BalloonAnimGif) {
+    //    ball.burstBalloon()
+    //}
 
 
 //    private fun clock() { //обновляем статусбар с оставшимся временем каждую секунду

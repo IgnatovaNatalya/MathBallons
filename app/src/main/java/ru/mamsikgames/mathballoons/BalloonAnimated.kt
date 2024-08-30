@@ -23,11 +23,11 @@ class BalloonAnimated(context: Context?, val num: Int) : View(context) {
     private var frameWidth = 0// 600 // ширина одного кадра
     private var frameHeight = 0// 600 // высота кадра
     private var frameRect: Rect
-    private val dstRect: Rect = Rect(0, 0, 1000, 1000)
+    private val dstRect: Rect = Rect(0, 0, BALLONSIZE, BALLONSIZE)
 
     //private var currentFrame = 2 // Текущий кадр
     var frameCount = 32
-    var frameDuration = 30L // Длительность кадра, миллисекунды
+    //var frameDuration = 25 // Длительность кадра, миллисекунды
     var isBursting = false
 
     //private var bitmaps: MutableList<Bitmap> = mutableListOf()
@@ -39,61 +39,33 @@ class BalloonAnimated(context: Context?, val num: Int) : View(context) {
     private var textNumX = 0F
     private var textNumY = 0F
 
+    private val balloonFrames = arrayOf(
+        R.drawable.a_frames_blue,
+        R.drawable.a_frames_orange,
+        R.drawable.a_frames_lightblue,
+        R.drawable.a_frames_pink,
+        R.drawable.a_frames_red,
+        R.drawable.a_frames_violet,
+        R.drawable.a_frames_yellow)
 
     init {
-        //currentFrame = 0
+
         val options = BitmapFactory.Options()
         options.inSampleSize = 2
-        bitmap = BitmapFactory.decodeResource(resources, R.drawable.a_frames_blue, options)
-        //bitmap = BitmapFactory.decodeResource(resources, R.drawable.blue_00, options)
+        bitmap = BitmapFactory.decodeResource(resources, balloonFrames[balloonFrames.indices.random()], options)
+
         frameWidth = bitmap.width / frameCount
         frameHeight = bitmap.height
         frameRect = Rect(0, 0, frameWidth, frameHeight)
 
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_00))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_01))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_02))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_03))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_04))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_05))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_06))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_07))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_08))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_09))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_10))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_11))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_12))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_13))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_14))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_15))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_16))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_17))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_18))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_19))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_20))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_21))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_22))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_23))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_24))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_25))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_26))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_27))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_28))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_29))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_30))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.red_31))
-//        bitmaps.add(BitmapFactory.decodeResource(resources, R.drawable.frame_32))
-
-        //frameCount = bitmaps.size
-
         paint.isAntiAlias = true
         paint.setColor(Color.WHITE)
         paint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD))
-        paint.textSize = 80.0f
+        paint.textSize = FONTSIZE
 
         textWidth = paint.measureText(textNum)
-        textNumX = (1000F - textWidth) / 2F
-        textNumY = 1000F * 0.53F
+        textNumX = (BALLONSIZE - textWidth) / 2F
+        textNumY = BALLONSIZE * 0.53F
     }
 
      fun burstBalloon() {
@@ -107,7 +79,7 @@ class BalloonAnimated(context: Context?, val num: Int) : View(context) {
                 val rightCorner = leftCorner + frameWidth
                 frameRect = Rect(leftCorner, 0, rightCorner, frameHeight)
                 invalidate()
-            }, (currentFrame * frameDuration))
+            }, (currentFrame * DURATION))
         }
     }
 
@@ -118,7 +90,6 @@ class BalloonAnimated(context: Context?, val num: Int) : View(context) {
 
         if (!isBursting)
             canvas.drawText(textNum, textNumX, textNumY, paint)
-            //canvas.drawText(textNum, 450F, 450F, paint)
     }
 
 
