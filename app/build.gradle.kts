@@ -39,8 +39,8 @@ dependencies {
     implementation(libs.glide)//
     annotationProcessor (libs.compiler)
 
-    //implementation( libs.jetbrains.kotlin.stdlib)//
-    //implementation (libs.kotlinx.coroutines.core)//
+    implementation( libs.jetbrains.kotlin.stdlib)//
+    implementation (libs.kotlinx.coroutines.core)//
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

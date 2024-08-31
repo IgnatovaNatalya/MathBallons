@@ -7,7 +7,7 @@ class GameStrategy() {
     var first=true
 
     private var P: Float =
-        QUANNUMBERS.toFloat() * INTERVALMS.toFloat() / (TASKTIMES.toFloat() * 1000F) //вероятность появления шарика с загаданным числом (удвлетворяет условию количества загаданных шаров в задании)
+        QUANNUMBERS.toFloat() * INTERVALMS.toFloat() / (TASKTIME.toFloat() * 1000F) //вероятность появления шарика с загаданным числом (удвлетворяет условию количества загаданных шаров в задании)
 
 
     fun newTask() {

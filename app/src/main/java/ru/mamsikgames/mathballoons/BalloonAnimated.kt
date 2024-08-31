@@ -1,6 +1,5 @@
 package ru.mamsikgames.mathballoons
 
-import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Bitmap
@@ -14,25 +13,21 @@ import android.graphics.Typeface
 import android.os.Handler
 import android.os.Looper
 import android.view.View
+import android.view.animation.AccelerateInterpolator
 import android.view.animation.LinearInterpolator
 
 
-class BalloonAnimated(context: Context?, val num: Int) : View(context) {
+class BalloonAnimated(context: Context?, val balloonNum: Int) : View(context) {
 
     private var bitmap: Bitmap
     private var frameWidth = 0// 600 // ширина одного кадра
     private var frameHeight = 0// 600 // высота кадра
     private var frameRect: Rect
     private val dstRect: Rect = Rect(0, 0, BALLONSIZE, BALLONSIZE)
-
-    //private var currentFrame = 2 // Текущий кадр
     var frameCount = 32
-    //var frameDuration = 25 // Длительность кадра, миллисекунды
     var isBursting = false
 
-    //private var bitmaps: MutableList<Bitmap> = mutableListOf()
-
-    private var textNum = num.toString()
+    private var textNum = balloonNum.toString()
     private val paint = Paint()
 
     private var textWidth = 0F
@@ -52,6 +47,7 @@ class BalloonAnimated(context: Context?, val num: Int) : View(context) {
 
         val options = BitmapFactory.Options()
         options.inSampleSize = 2
+
         bitmap = BitmapFactory.decodeResource(resources, balloonFrames[balloonFrames.indices.random()], options)
 
         frameWidth = bitmap.width / frameCount
@@ -65,7 +61,7 @@ class BalloonAnimated(context: Context?, val num: Int) : View(context) {
 
         textWidth = paint.measureText(textNum)
         textNumX = (BALLONSIZE - textWidth) / 2F
-        textNumY = BALLONSIZE * 0.53F
+        textNumY = BALLONSIZE * 0.5F
     }
 
      fun burstBalloon() {
@@ -79,7 +75,7 @@ class BalloonAnimated(context: Context?, val num: Int) : View(context) {
                 val rightCorner = leftCorner + frameWidth
                 frameRect = Rect(leftCorner, 0, rightCorner, frameHeight)
                 invalidate()
-            }, (currentFrame * DURATION))
+            }, (currentFrame * FRAME_DURATION))
         }
     }
 
@@ -93,57 +89,73 @@ class BalloonAnimated(context: Context?, val num: Int) : View(context) {
     }
 
 
-    fun moveBalloon() {
+    fun moveBalloon(maxY: Float) {
 
+        val widthPath = 10F
+        val heightStep = -100F
         val posStartX = this.x
         val posStartY = this.y
 
         val rand: Int = (-20..20).random()
 
-        val myPath1 = Path().apply {
+        val balloonPath = Path().apply {
             moveTo(posStartX + rand, posStartY)
             rLineTo(rand.toFloat(), (-100 + 2.5 * rand).toFloat())
         }
+        //var passedWay = 0F
+        //while (passedWay < maxY + BALLONSIZE/2) { //todo убрать /2
+        //    passedWay += heightStep
+            balloonPath.apply {
+                rLineTo(widthPath, heightStep)
+                rLineTo(-widthPath, heightStep)
+                rLineTo(widthPath, heightStep)
+                rLineTo(-widthPath, heightStep)
+                rLineTo(widthPath, heightStep)
+                rLineTo(-widthPath, heightStep)
+                rLineTo(widthPath, heightStep)
+                rLineTo(-widthPath, heightStep)
+                rLineTo(widthPath, heightStep)
+                rLineTo(-widthPath, heightStep)
+                rLineTo(widthPath, heightStep)
+                rLineTo(-widthPath, heightStep)
+                rLineTo(widthPath, heightStep)
+                rLineTo(-widthPath, heightStep)
+                rLineTo(widthPath, heightStep)
+                rLineTo(-widthPath, heightStep)
+                rLineTo(widthPath, heightStep)
+                rLineTo(-widthPath, heightStep)
+                rLineTo(widthPath, heightStep)
+                rLineTo(-widthPath, heightStep)
+            }
+        //}
 
-        myPath1.apply {
-            rLineTo(10F, -100F)
-            rLineTo(-10F, -100F)
-            rLineTo(10F, -100F)
-            rLineTo(-10F, -100F)
-            rLineTo(10F, -100F)
-            rLineTo(-10F, -100F)
-            rLineTo(10F, -100F)
-            rLineTo(-10F, -100F)
-            rLineTo(10F, -100F)
-            rLineTo(-10F, -100F)
-            rLineTo(10F, -100F)
-            rLineTo(-10F, -100F)
-            rLineTo(10F, -100F)
-            rLineTo(-10F, -100F)
-            rLineTo(10F, -100F)
-            rLineTo(-10F, -100F)
-            rLineTo(10F, -100F)
-            rLineTo(-10F, -100F)
-        }
-
-        val animator = ObjectAnimator.ofFloat(this, View.X, View.Y, myPath1).apply {
-            duration = 15000
+        val animator = ObjectAnimator.ofFloat(this, X, Y, balloonPath).apply {
+            duration = FLY_DURATION
             start()
         }
+        animator.interpolator= AccelerateInterpolator()//LinearInterpolator()
 
-        animator.interpolator = LinearInterpolator()
-
-        animator.addListener(object : Animator.AnimatorListener {
-            override fun onAnimationStart(animator: Animator) {}
-            override fun onAnimationEnd(animator: Animator) {
-                //changeBalloon()
-                //moveBalloon()
-            }
-
-            override fun onAnimationCancel(animator: Animator) {}
-            override fun onAnimationRepeat(animator: Animator) {}
-        })
     }
+
+//            rLineTo(10F, -100F)
+//            rLineTo(-10F, -100F)
+//            rLineTo(10F, -100F)
+//            rLineTo(-10F, -100F)
+//            rLineTo(10F, -100F)
+//            rLineTo(-10F, -100F)
+//            rLineTo(10F, -100F)
+//            rLineTo(-10F, -100F)
+//            rLineTo(10F, -100F)
+//            rLineTo(-10F, -100F)
+//            rLineTo(10F, -100F)
+//            rLineTo(-10F, -100F)
+//            rLineTo(10F, -100F)
+//            rLineTo(-10F, -100F)
+//            rLineTo(10F, -100F)
+//            rLineTo(-10F, -100F)
+
+
+
 }
 
 
